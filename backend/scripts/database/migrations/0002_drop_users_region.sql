@@ -1,0 +1,3 @@
+ALTER TABLE users DROP CONSTRAINT IF EXISTS ck_users_region_valid;
+DROP INDEX IF EXISTS ix_users_region;
+ALTER TABLE users DROP COLUMN IF EXISTS region;

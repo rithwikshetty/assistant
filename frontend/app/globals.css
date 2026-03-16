@@ -1,0 +1,1085 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================================
+   DESIGN SYSTEM: "Warm Obsidian"
+   Typography: Bricolage Grotesque (display) + DM Sans (body) + JetBrains Mono (code)
+   Palette: Warm amber/stone — rich, editorial, distinctive
+   ============================================================================ */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-toast-success: var(--toast-success);
+  --color-toast-success-foreground: var(--toast-success-foreground);
+  --color-toast-info: var(--toast-info);
+  --color-toast-info-foreground: var(--toast-info-foreground);
+  --color-toast-error: var(--toast-error);
+  --color-toast-error-foreground: var(--toast-error-foreground);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Spacing System (8dp grid) */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+  --spacing-xxxl: 4rem;
+
+  /* Safe Area Insets */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+
+  /* Touch targets */
+  --touch-target-min: 3rem;
+  --touch-target-spacing: 0.5rem;
+
+  /* Typography Scale */
+  --type-size-8: 8px;
+  --type-size-10: 10px;
+  --type-size-12: 12px;
+  --type-size-14: 14px;
+  --type-size-16: 16px;
+  --type-size-20: 20px;
+  --type-size-24: 24px;
+  --type-size-32: 32px;
+
+  --type-line-10: 14px;
+  --type-line-12: 16px;
+  --type-line-14: 20px;
+  --type-line-16: 24px;
+  --type-line-20: 28px;
+  --type-line-24: 32px;
+  --type-line-32: 40px;
+
+  /* ======================== LIGHT MODE ======================== */
+  /* Warm paper-cream aesthetic */
+
+  /* Primary: Burnt Orange — bold, warm, distinctive */
+  --primary: #C2410C;
+  --primary-foreground: #FFF7ED;
+
+  /* Primary surface tonal */
+  --primary-surface: rgba(194, 65, 12, 0.07);
+  --primary-surface-strong: rgba(194, 65, 12, 0.13);
+  --primary-surface-foreground: #9A3412;
+
+  /* Secondary */
+  --secondary: #F5F0EB;
+  --secondary-foreground: #44403C;
+
+  /* Backgrounds: Warm cream paper */
+  --background: #FAF9F7;
+  --foreground: #1C1917;
+
+  /* Cards */
+  --card: #FFFFFF;
+  --card-foreground: #1C1917;
+
+  /* Popovers */
+  --popover: #FFFFFF;
+  --popover-foreground: #1C1917;
+
+  /* Muted */
+  --muted: #F0EDE8;
+  --muted-foreground: #78716C;
+
+  /* Accents */
+  --accent: #FEF3C7;
+  --accent-foreground: #92400E;
+
+  /* Destructive */
+  --destructive: #DC2626;
+  --destructive-foreground: #FEF2F2;
+
+  /* Borders — warm, subtle */
+  --border: rgba(28, 25, 23, 0.08);
+  --input: rgba(28, 25, 23, 0.10);
+  --ring: rgba(194, 65, 12, 0.35);
+
+  /* Sidebar — dark panel for two-tone contrast */
+  --sidebar: #1C1917;
+  --sidebar-foreground: #E7E5E4;
+  --sidebar-primary: #FB923C;
+  --sidebar-primary-foreground: #1C1917;
+  --sidebar-accent: rgba(255, 255, 255, 0.07);
+  --sidebar-accent-foreground: #FAFAF9;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-ring: rgba(251, 146, 60, 0.3);
+
+  /* Chart Colors — warm palette */
+  --chart-1: #C2410C;
+  --chart-2: #0D9488;
+  --chart-3: #7C3AED;
+  --chart-4: #D97706;
+  --chart-5: #78716C;
+
+  /* Toast */
+  --toast-success: #F0FDF4;
+  --toast-success-foreground: #15803D;
+  --toast-info: #FFFBEB;
+  --toast-info-foreground: #92400E;
+  --toast-error: #FEF2F2;
+  --toast-error-foreground: #B91C1C;
+
+  --accent-yellow: #D97706;
+  --success: #059669;
+  --success-foreground: #ffffff;
+  --warning: #D97706;
+  --warning-foreground: #ffffff;
+  --info: #0284C7;
+  --info-foreground: #ffffff;
+
+  /* Scrollbar */
+  --scrollbar-thumb-subtle: rgba(28, 25, 23, 0.08);
+  --scrollbar-thumb: rgba(28, 25, 23, 0.20);
+  --scrollbar-thumb-hover: rgba(28, 25, 23, 0.35);
+  --scrollbar-track: transparent;
+}
+
+.dark {
+  /* ======================== DARK MODE ======================== */
+  /* Deep warm charcoal with vibrant orange accents */
+
+  /* Primary: Vibrant Orange */
+  --primary: #FB923C;
+  --primary-foreground: #0C0A09;
+
+  /* Primary surface tonal */
+  --primary-surface: rgba(251, 146, 60, 0.10);
+  --primary-surface-strong: rgba(251, 146, 60, 0.18);
+  --primary-surface-foreground: #FDBA74;
+
+  /* Secondary */
+  --secondary: #1C1917;
+  --secondary-foreground: #E7E5E4;
+
+  /* Backgrounds: Deep warm black */
+  --background: #0C0A09;
+  --foreground: #FAFAF9;
+
+  /* Cards: Warm dark glass */
+  --card: rgba(28, 25, 23, 0.50);
+  --card-foreground: #FAFAF9;
+
+  /* Popovers */
+  --popover: #1C1917;
+  --popover-foreground: #FAFAF9;
+
+  /* Muted */
+  --muted: #292524;
+  --muted-foreground: #A8A29E;
+
+  /* Accents */
+  --accent: #292524;
+  --accent-foreground: #FAFAF9;
+
+  /* Destructive */
+  --destructive: #EF4444;
+  --destructive-foreground: #FEE2E2;
+
+  /* Borders */
+  --border: rgba(250, 250, 249, 0.07);
+  --input: rgba(250, 250, 249, 0.10);
+  --ring: rgba(251, 146, 60, 0.30);
+
+  /* Sidebar */
+  --sidebar: rgba(12, 10, 9, 0.92);
+  --sidebar-foreground: #FAFAF9;
+  --sidebar-primary: #FB923C;
+  --sidebar-primary-foreground: #0C0A09;
+  --sidebar-accent: rgba(251, 146, 60, 0.10);
+  --sidebar-accent-foreground: #FAFAF9;
+  --sidebar-border: rgba(250, 250, 249, 0.05);
+  --sidebar-ring: rgba(251, 146, 60, 0.25);
+
+  /* Chart Colors */
+  --chart-1: #FB923C;
+  --chart-2: #2DD4BF;
+  --chart-3: #A78BFA;
+  --chart-4: #FBBF24;
+  --chart-5: #A8A29E;
+
+  /* Toast */
+  --toast-success: #052E16;
+  --toast-success-foreground: #BBF7D0;
+  --toast-info: #451A03;
+  --toast-info-foreground: #FED7AA;
+  --toast-error: #450A0A;
+  --toast-error-foreground: #FECACA;
+
+  --accent-yellow: #F59E0B;
+  --success: #10B981;
+  --success-foreground: #ffffff;
+  --warning: #F59E0B;
+  --warning-foreground: #ffffff;
+  --info: #0EA5E9;
+  --info-foreground: #ffffff;
+
+  /* Scrollbar */
+  --scrollbar-thumb-subtle: rgba(250, 250, 249, 0.06);
+  --scrollbar-thumb: rgba(250, 250, 249, 0.18);
+  --scrollbar-thumb-hover: rgba(250, 250, 249, 0.30);
+  --scrollbar-track: transparent;
+}
+
+/* ============================================================================
+   GLOBAL RESETS & BASE STYLES
+   ============================================================================ */
+
+/* Cursor pointer for interactive elements */
+button,
+a,
+[role="button"],
+select,
+input[type="submit"],
+input[type="button"],
+input[type="checkbox"],
+input[type="radio"],
+label[for],
+.clickable,
+[data-state],
+summary {
+  cursor: pointer !important;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    overscroll-behavior: none;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+/* ============================================================================
+   MOTION & EASING CURVES
+   ============================================================================ */
+
+@layer utilities {
+  /* Material Design easing curves */
+  .ease-md-standard {
+    transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  .ease-md-decelerate {
+    transition-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
+  }
+
+  .ease-md-accelerate {
+    transition-timing-function: cubic-bezier(0.4, 0.0, 1, 1);
+  }
+
+  .ease-md-sharp {
+    transition-timing-function: cubic-bezier(0.4, 0.0, 0.6, 1);
+  }
+
+  .ease-md3-standard {
+    transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .ease-md3-emphasized-decelerate {
+    transition-timing-function: cubic-bezier(0.05, 0.7, 0.1, 1);
+  }
+
+  .ease-md3-emphasized-accelerate {
+    transition-timing-function: cubic-bezier(0.3, 0, 0.8, 0.15);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar-transition,
+    [data-slot="sidebar-container"],
+    [data-slot="sidebar-gap"] {
+      transition: none !important;
+    }
+  }
+}
+
+/* ============================================================================
+   TYPOGRAPHY SCALE
+   ============================================================================ */
+
+@layer utilities {
+  .type-size-8 {
+    font-size: var(--type-size-8);
+    line-height: 1;
+  }
+
+  .type-size-10 {
+    font-size: var(--type-size-10);
+    line-height: var(--type-line-10);
+  }
+
+  .type-size-12 {
+    font-size: var(--type-size-12);
+    line-height: var(--type-line-12);
+  }
+
+  .type-size-14 {
+    font-size: var(--type-size-14);
+    line-height: var(--type-line-14);
+  }
+
+  .type-size-16 {
+    font-size: var(--type-size-16);
+    line-height: var(--type-line-16);
+  }
+
+  .type-size-20 {
+    font-size: var(--type-size-20);
+    line-height: var(--type-line-20);
+  }
+
+  .type-size-24 {
+    font-size: var(--type-size-24);
+    line-height: var(--type-line-24);
+  }
+
+  .type-size-32 {
+    font-size: var(--type-size-32);
+    line-height: var(--type-line-32);
+  }
+
+  /* Display typography — uses Bricolage Grotesque */
+  .type-page-title {
+    font-family: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif;
+    font-size: var(--type-size-24);
+    line-height: var(--type-line-24);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+  }
+
+  .type-page-subtitle {
+    font-size: var(--type-size-14);
+    line-height: var(--type-line-14);
+    color: var(--muted-foreground);
+  }
+
+  .type-hero-title {
+    font-family: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif;
+    font-size: var(--type-size-32);
+    line-height: var(--type-line-32);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--foreground);
+  }
+
+  .type-hero-subtitle {
+    font-size: var(--type-size-16);
+    line-height: var(--type-line-16);
+    color: var(--muted-foreground);
+  }
+
+  .type-section-title {
+    font-family: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif;
+    font-size: var(--type-size-24);
+    line-height: var(--type-line-24);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+  }
+
+  .type-card-title {
+    font-family: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif;
+    font-size: var(--type-size-20);
+    line-height: var(--type-line-20);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--foreground);
+  }
+
+  .type-body {
+    font-size: var(--type-size-14);
+    line-height: var(--type-line-14);
+  }
+
+  .type-body-muted {
+    font-size: var(--type-size-14);
+    line-height: var(--type-line-14);
+    color: var(--muted-foreground);
+  }
+
+  .type-caption {
+    font-size: var(--type-size-12);
+    line-height: var(--type-line-12);
+  }
+
+  .type-overline {
+    font-size: var(--type-size-10);
+    line-height: var(--type-line-10);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted-foreground);
+  }
+
+  .type-control {
+    font-size: var(--type-size-14);
+    line-height: var(--type-line-14);
+    font-weight: 500;
+  }
+
+  .type-control-compact {
+    font-size: var(--type-size-12);
+    line-height: var(--type-line-12);
+    font-weight: 500;
+  }
+
+  .type-nav-row {
+    font-size: var(--type-size-14);
+    line-height: var(--type-line-14);
+    font-weight: 400;
+  }
+
+  .type-nav-meta {
+    font-size: var(--type-size-10);
+    line-height: var(--type-line-10);
+  }
+
+  .type-nav-label {
+    font-size: var(--type-size-10);
+    line-height: var(--type-line-10);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted-foreground);
+  }
+
+  .type-chat-header-title {
+    font-family: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif;
+    font-size: var(--type-size-20);
+    line-height: var(--type-line-20);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+  }
+
+  .type-chat-chip {
+    font-size: var(--type-size-12);
+    line-height: var(--type-line-12);
+    font-weight: 500;
+  }
+
+  .type-chat-input {
+    font-size: var(--type-size-14);
+    line-height: var(--type-line-14);
+  }
+
+  @media (max-width: 600px) {
+    .type-chat-input {
+      font-size: var(--type-size-16);
+      line-height: var(--type-line-16);
+    }
+  }
+
+  .type-table-head {
+    font-size: var(--type-size-10);
+    line-height: var(--type-line-10);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    color: var(--muted-foreground);
+  }
+
+  .type-table-cell {
+    font-size: var(--type-size-14);
+    line-height: var(--type-line-14);
+  }
+}
+
+/* ============================================================================
+   MOBILE & RESPONSIVE UTILITIES
+   ============================================================================ */
+
+@layer utilities {
+  .touch-target {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    margin: var(--touch-target-spacing);
+  }
+
+  .mobile-container {
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+
+  .safe-area-top {
+    padding-top: var(--safe-area-top);
+  }
+
+  .safe-area-right {
+    padding-right: var(--safe-area-right);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: var(--safe-area-bottom);
+  }
+
+  .safe-area-left {
+    padding-left: var(--safe-area-left);
+  }
+
+  .safe-area-inset {
+    padding-top: var(--safe-area-top);
+    padding-right: var(--safe-area-right);
+    padding-bottom: var(--safe-area-bottom);
+    padding-left: var(--safe-area-left);
+  }
+
+  .mobile-only {
+    display: block;
+  }
+
+  .tablet-up {
+    display: none;
+  }
+
+  @media (min-width: 601px) {
+    .mobile-only {
+      display: none;
+    }
+
+    .tablet-up {
+      display: block;
+    }
+  }
+
+  .mobile-scroll {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+    overscroll-behavior-y: contain;
+  }
+
+  @media (max-width: 600px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="search"],
+    input[type="url"],
+    input[type="tel"],
+    input[type="number"],
+    textarea,
+    select {
+      font-size: max(16px, inherit) !important;
+    }
+  }
+}
+
+/* ============================================================================
+   KEYFRAME ANIMATIONS
+   ============================================================================ */
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@keyframes status-breathe {
+  0%, 100% { opacity: 0.3; transform: scale(0.85); }
+  50% { opacity: 0.9; transform: scale(1); }
+}
+
+@keyframes slideUpFade {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDownFade {
+  from { transform: translateY(-12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes warmGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(194, 65, 12, 0); }
+  50% { box-shadow: 0 0 20px 2px rgba(194, 65, 12, 0.08); }
+}
+
+@keyframes slow-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Spring-inspired overshoot for dialogs and modals */
+@keyframes springIn {
+  0% { opacity: 0; transform: scale(0.92) translateY(8px); }
+  60% { opacity: 1; transform: scale(1.02) translateY(-1px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Gentle float for empty states */
+@keyframes gentleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Subtle breathing scale for active elements */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+/* Slide in from left for sidebar items */
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Elastic bounce for interactive feedback */
+@keyframes elasticPop {
+  0% { transform: scale(0.85); }
+  40% { transform: scale(1.08); }
+  70% { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+.animate-slide-up-fade {
+  animation: slideUpFade 700ms cubic-bezier(0.05, 0.7, 0.1, 1) both;
+}
+
+.animate-slide-down-fade {
+  animation: slideDownFade 700ms cubic-bezier(0.05, 0.7, 0.1, 1) both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 500ms cubic-bezier(0.05, 0.7, 0.1, 1) both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 400ms cubic-bezier(0.05, 0.7, 0.1, 1) both;
+}
+
+.animate-spring-in {
+  animation: springIn 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.animate-gentle-float {
+  animation: gentleFloat 3s ease-in-out infinite;
+}
+
+.animate-breathe {
+  animation: breathe 2.5s ease-in-out infinite;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 400ms cubic-bezier(0.05, 0.7, 0.1, 1) both;
+}
+
+.animate-elastic-pop {
+  animation: elasticPop 450ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Stagger children — apply to parent, children get sequential delays */
+.stagger-children > * { opacity: 0; animation: slideUpFade 400ms cubic-bezier(0.05, 0.7, 0.1, 1) both; }
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+
+/* Interactive hover lift — add to any element */
+.hover-lift {
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 200ms ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+}
+.hover-lift:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ============================================================================
+   LOGO GLOW
+   ============================================================================ */
+
+.logo-glow-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-glow-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(194, 65, 12, 0.12) 0%,
+    rgba(194, 65, 12, 0.05) 35%,
+    rgba(194, 65, 12, 0.01) 60%,
+    transparent 80%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+:is(.dark) .logo-glow-wrapper::before {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(251, 146, 60, 0.15) 0%,
+    rgba(251, 146, 60, 0.06) 35%,
+    rgba(251, 146, 60, 0.02) 60%,
+    transparent 80%
+  );
+}
+
+/* ============================================================================
+   CONTENT SPACING (text ↔ tool groups)
+   ============================================================================ */
+
+@layer utilities {
+  .aui-md + .tool-connectable-group,
+  .aui-md + .tool-connectable {
+    margin-top: 0.5rem;
+  }
+
+  .tool-connectable-group + .aui-md,
+  .tool-connectable + .aui-md {
+    margin-top: 0.5rem;
+  }
+
+  [data-message-content] > .aui-md + .tool-connectable,
+  [data-message-content] > .tool-connectable + .aui-md {
+    margin-top: 0.5rem;
+  }
+
+  .tool-connectable-group + .tool-connectable-group {
+    margin-top: 0.25rem;
+  }
+}
+
+/* Remove tool icon connector rails */
+@layer utilities {
+  .tool-rail-anchor::before,
+  .tool-rail-anchor::after {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   SHIMMER TEXT EFFECT
+   ============================================================================ */
+
+@layer utilities {
+  .shimmer-text {
+    background: linear-gradient(90deg, currentColor 0%, rgba(255, 255, 255, 0.3) 25%, currentColor 50%, currentColor 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 2s linear infinite;
+  }
+
+  .shimmer-slow {
+    animation-duration: 4s;
+  }
+}
+
+/* ============================================================================
+   SCROLLBAR STYLING
+   ============================================================================ */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb-subtle) var(--scrollbar-track);
+}
+
+*:hover {
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* WebKit */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track) !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-subtle) !important;
+  border-radius: 6px;
+  border: 1px solid var(--scrollbar-track) !important;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb) !important;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover) !important;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb-subtle) var(--scrollbar-track);
+}
+
+.custom-scrollbar:hover {
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: var(--scrollbar-track) !important; border-radius: 6px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-subtle) !important; border-radius: 6px; border: 1px solid var(--scrollbar-track) !important; }
+.custom-scrollbar:hover::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb) !important; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover) !important; }
+
+textarea.custom-scrollbar::-webkit-scrollbar,
+.custom-scrollbar textarea::-webkit-scrollbar,
+[data-chat-input] textarea::-webkit-scrollbar { width: 6px !important; }
+
+textarea.custom-scrollbar::-webkit-scrollbar-track,
+.custom-scrollbar textarea::-webkit-scrollbar-track,
+[data-chat-input] textarea::-webkit-scrollbar-track { background: var(--scrollbar-track) !important; border-radius: 6px !important; }
+
+textarea.custom-scrollbar::-webkit-scrollbar-thumb,
+.custom-scrollbar textarea::-webkit-scrollbar-thumb,
+[data-chat-input] textarea::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-subtle) !important; border-radius: 6px !important; border: 1px solid var(--scrollbar-track) !important; }
+
+textarea.custom-scrollbar:hover::-webkit-scrollbar-thumb,
+.custom-scrollbar textarea:hover::-webkit-scrollbar-thumb,
+[data-chat-input] textarea:hover::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb) !important; }
+
+textarea.custom-scrollbar::-webkit-scrollbar-thumb:hover,
+.custom-scrollbar textarea::-webkit-scrollbar-thumb:hover,
+[data-chat-input] textarea::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover) !important; }
+
+/* ============================================================================
+   ASSISTANT ACTION BAR ANIMATION
+   ============================================================================ */
+
+.assistant-action-bar {
+  opacity: 0;
+  transform: translateX(-6px);
+  animation: assistant-action-bar-enter 180ms ease-out forwards;
+}
+
+.assistant-action-bar > * {
+  opacity: 0;
+  transform: translateX(-8px);
+  animation: assistant-action-bar-item-enter 220ms ease-out forwards;
+}
+
+.assistant-action-bar > *:nth-child(1) { animation-delay: 40ms; }
+.assistant-action-bar > *:nth-child(2) { animation-delay: 80ms; }
+.assistant-action-bar > *:nth-child(3) { animation-delay: 120ms; }
+.assistant-action-bar > *:nth-child(4) { animation-delay: 160ms; }
+.assistant-action-bar > *:nth-child(5) { animation-delay: 200ms; }
+.assistant-action-bar > *:nth-child(6) { animation-delay: 240ms; }
+.assistant-action-bar > *:nth-child(7) { animation-delay: 280ms; }
+
+@keyframes assistant-action-bar-enter {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes assistant-action-bar-item-enter {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assistant-action-bar,
+  .assistant-action-bar > * {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* ============================================================================
+   CHAT SHELL BACKGROUND — Subtle warm noise texture
+   ============================================================================ */
+
+.assist-shell-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(circle, rgba(194, 65, 12, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
+  opacity: 0.5;
+}
+
+.dark .assist-shell-bg {
+  background-image: radial-gradient(circle, rgba(251, 146, 60, 0.03) 1px, transparent 1px);
+  opacity: 0.4;
+}
+
+/* ============================================================================
+   STREAMING DOT ANIMATION
+   ============================================================================ */
+
+@keyframes streaming-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+:where(.aui-md[data-status="running"]):empty::after,
+:where(.aui-md[data-status="running"]) > :where(:not(ol):not(ul):not(pre)):last-child::after,
+:where(.aui-md[data-status="running"]) > pre:last-child code::after,
+:where(.aui-md[data-status="running"]) > :where(:is(ol, ul):last-child) > :where(li:last-child:not(:has(* > li)))::after,
+:where(.aui-md[data-status="running"]) > :where(:is(ol, ul):last-child) > :where(li:last-child) > :where(:is(ol, ul):last-child) > :where(li:last-child:not(:has(* > li)))::after,
+:where(.aui-md[data-status="running"]) > :where(:is(ol, ul):last-child) > :where(li:last-child) > :where(:is(ol, ul):last-child) > :where(li:last-child) > :where(:is(ol, ul):last-child) > :where(li:last-child)::after {
+  content: "" !important;
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
+  background: var(--primary);
+  margin-left: 0.3rem;
+  vertical-align: middle;
+  animation: streaming-dot-pulse 1.2s ease-in-out infinite !important;
+}
+
+/* ============================================================================
+   SKILL MARKDOWN COMPACT OVERRIDES
+   ============================================================================ */
+
+.skill-markdown-compact h1 { font-size: var(--type-size-20) !important; }
+.skill-markdown-compact h2 { font-size: var(--type-size-16) !important; }
+.skill-markdown-compact h3 { font-size: var(--type-size-14) !important; }
+.skill-markdown-compact h4 { font-size: var(--type-size-12) !important; }
+.skill-markdown-compact p,
+.skill-markdown-compact ul,
+.skill-markdown-compact ol,
+.skill-markdown-compact td,
+.skill-markdown-compact code,
+.skill-markdown-compact blockquote { font-size: var(--type-size-12) !important; }
+.skill-markdown-compact th { font-size: var(--type-size-12) !important; }
+.skill-markdown-compact table { min-width: 0 !important; font-size: var(--type-size-12) !important; }
+.skill-markdown-compact pre {
+  background-color: var(--muted) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+  box-shadow: none !important;
+}
+
+/* ============================================================================
+   FOCUS GLOW — warm accent glow on focus for inputs
+   ============================================================================ */
+
+.focus-glow:focus-within {
+  box-shadow: 0 0 0 1px var(--primary), 0 0 16px -4px rgba(194, 65, 12, 0.15);
+  transition: box-shadow 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dark .focus-glow:focus-within {
+  box-shadow: 0 0 0 1px var(--primary), 0 0 16px -4px rgba(251, 146, 60, 0.12);
+}
+
+/* ============================================================================
+   NOISE / GRAIN TEXTURE OVERLAY
+   Adds subtle analog texture to prevent flat digital feel
+   ============================================================================ */
+
+.grain-overlay::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+.dark .grain-overlay::after {
+  opacity: 0.03;
+  mix-blend-mode: screen;
+}
+
+/* ============================================================================
+   PHOSPHOR ICON STYLING — duotone secondary color inherits from CSS
+   ============================================================================ */
+
+/* Make Phosphor duotone secondary parts inherit opacity for consistent look */
+svg[class] .duotone-secondary {
+  opacity: 0.2;
+}
