@@ -10,7 +10,6 @@ from sqlalchemy import func, select, text
 
 from .api.files import router as files_router
 from .api.preferences import router as preferences_router
-from .api.projects import router as projects_router
 from .api.projects_core import router as projects_core_router
 from .api.redaction_list import router as redaction_list_router
 from .api.share import router as share_router
@@ -170,7 +169,6 @@ app.include_router(files_router)
 app.include_router(staged_files_router)
 app.include_router(preferences_router)
 app.include_router(projects_core_router)
-app.include_router(projects_router)
 app.include_router(share_router)
 app.include_router(tasks_router)
 app.include_router(redaction_list_router)

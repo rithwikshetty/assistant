@@ -31,12 +31,10 @@ import {
 import { CreateProjectDialog } from "@/components/projects/create-project-dialog";
 import { EditProjectDialog } from "@/components/projects/edit-project-dialog";
 import { ProjectSharingDialog } from "@/components/projects/project-sharing-dialog";
-import { ConfirmButton } from "@/components/ui/confirm-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { InlineTitleEditor } from "@/components/navigation/inline-title-editor";
@@ -50,7 +48,6 @@ import { useConversationDragContext } from "./conversation-dnd-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/auth-context";
 import { ProjectMembersProvider } from "@/contexts/project-members-context";
-import { leavePublicProject } from "@/lib/api/projects";
 import { formatRelativeCompact } from "@/lib/datetime";
 import { resolveConversationDisplayTitle } from "@/lib/conversation-titles";
 import { performPinToggle } from "@/lib/navigation/pin-toggle";
@@ -415,10 +412,6 @@ export const ProjectList: FC<{ searchQuery?: string }> = ({ searchQuery = "" }) 
     });
   }, []);
 
-  // Preserve backend order; just split by section
-  const myProjects = useMemo(() => projects.filter((project) => !project.is_public_candidate), [projects]);
-  const publicProjects = useMemo(() => projects.filter((project) => project.is_public_candidate), [projects]);
-
   // Track previous expanded state to prevent unnecessary transition retriggering
   const prevExpandedRef = useRef<Set<string>>(new Set());
 
@@ -725,22 +718,6 @@ export const ProjectList: FC<{ searchQuery?: string }> = ({ searchQuery = "" }) 
     return () => window.removeEventListener("frontend:requestProjectEdit", onRequestEdit as EventListener);
   }, [projects, handleEditProject]);
 
-  const handleLeaveProject = useCallback(
-    async (project: typeof projects[0]) => {
-      try {
-        await leavePublicProject(project.id);
-        updateProjects((current) => current.filter((p) => p.id !== project.id));
-        addToast({ type: "info", title: "Left project", description: project.name });
-        if (pathname?.startsWith(`/projects/${project.id}`)) {
-          navigate('/');
-        }
-      } catch (err) {
-        addToast({ type: "error", title: "Failed to leave", description: (err as Error)?.message ?? "Something went wrong" });
-      }
-    },
-    [addToast, updateProjects, pathname, navigate]
-  );
-
   const handleBulkDelete = useCallback(
     async (projectId: string) => {
       if (selectedIds.size === 0 || isBulkDeleting) return;
@@ -967,32 +944,14 @@ export const ProjectList: FC<{ searchQuery?: string }> = ({ searchQuery = "" }) 
                             Edit details
                           </DropdownMenuItem>
                         )}
-                        {(!project.is_public_candidate || isProjectOwner) && (
-                          <DropdownMenuItem
-                            onClick={() => handleOpenManageProject(project)}
-                            disabled={isBulkDeleting}
-                            className="focus:text-sidebar-foreground"
-                          >
-                            <SlidersHorizontal className="size-4 mr-2" />
-                            Manage
-                          </DropdownMenuItem>
-                        )}
-                        {(isProjectOwner || !project.is_public_candidate) && <DropdownMenuSeparator />}
-                        <div className="py-0">
-                          <ConfirmButton
-                            variant="ghost"
-                            size="sm"
-                            confirmVariant="destructive"
-                            confirmSize="sm"
-                            confirmLabel="Confirm leave"
-                            className="w-full h-auto items-center justify-center rounded-md px-2 py-1.5 type-control-compact text-destructive hover:bg-destructive/10 hover:text-destructive focus-visible:ring-0 focus-visible:ring-offset-0"
-                            confirmClassName="rounded-md"
-                            disabled={isProjectOperating || isBulkDeleting}
-                            onConfirm={() => handleLeaveProject(project)}
-                          >
-                            Leave project
-                          </ConfirmButton>
-                        </div>
+                        <DropdownMenuItem
+                          onClick={() => handleOpenManageProject(project)}
+                          disabled={isBulkDeleting}
+                          className="focus:text-sidebar-foreground"
+                        >
+                          <SlidersHorizontal className="size-4 mr-2" />
+                          Manage
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   }
@@ -1067,23 +1026,18 @@ export const ProjectList: FC<{ searchQuery?: string }> = ({ searchQuery = "" }) 
     return null;
   }
 
-  const myProjectNodes = renderProjectItems(myProjects);
-  const publicProjectNodes = renderProjectItems(publicProjects);
-  // Hide the section entirely when the user has no public projects
-  const shouldShowPublicSection = publicProjects.length > 0;
-
-  const isMyProjectsCollapsed = collapsedSections.has("my-projects");
-  const isCompanyProjectsCollapsed = collapsedSections.has("company-projects");
+  const projectNodes = renderProjectItems(projects);
+  const isProjectsCollapsed = collapsedSections.has("projects");
 
   return (
     <>
       <SectionHeader
-        label="My Projects"
-        isCollapsed={isMyProjectsCollapsed}
-        onToggle={() => toggleSection("my-projects")}
+        label="Projects"
+        isCollapsed={isProjectsCollapsed}
+        onToggle={() => toggleSection("projects")}
       />
 
-      {!isMyProjectsCollapsed && (
+      {!isProjectsCollapsed && (
         <>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -1095,38 +1049,16 @@ export const ProjectList: FC<{ searchQuery?: string }> = ({ searchQuery = "" }) 
             </SidebarMenuButton>
           </SidebarMenuItem>
 
-          {myProjectNodes}
-          {myProjectNodes.length === 0 && (
+          {projectNodes}
+          {projectNodes.length === 0 && (
             <div className="px-3 py-1.5 type-nav-meta text-sidebar-foreground/40">
               {searchQuery.trim()
                 ? "No projects match your search."
-                : "Create a private project or join a public one to get started."}
+                : "Create a project to get started."}
             </div>
           )}
         </>
       )}
-
-      {shouldShowPublicSection ? (
-        <>
-          <SectionHeader
-            label="Public Projects"
-            isCollapsed={isCompanyProjectsCollapsed}
-            onToggle={() => toggleSection("company-projects")}
-          />
-          {!isCompanyProjectsCollapsed && (
-            <>
-              {publicProjectNodes}
-              {publicProjectNodes.length === 0 && (
-                <div className="px-3 py-1.5 type-nav-meta text-sidebar-foreground/40">
-                  {searchQuery.trim()
-                    ? "No public projects match your search."
-                    : "Use Discover Projects to find public spaces curated by owners."}
-                </div>
-              )}
-            </>
-          )}
-        </>
-      ) : null}
 
       <CreateProjectDialog open={showCreateDialog} onClose={() => setShowCreateDialog(false)} />
       <EditProjectDialog

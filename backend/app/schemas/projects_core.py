@@ -54,7 +54,6 @@ class ProjectUpdate(BaseModel):
     description: Optional[str] = Field(None, max_length=5000, description="Project description")
     custom_instructions: Optional[str] = Field(None, max_length=2000, description="AI behavior guidance for this project")
     color: Optional[str] = Field(None, max_length=7, description="Hex color code (e.g., #F7C400)")
-    category: Optional[str] = Field(None, max_length=100, description="Project category for public projects")
     @field_validator("name")
     @classmethod
     def validate_optional_name(cls, value: Optional[str]) -> Optional[str]:
@@ -101,11 +100,6 @@ class ProjectResponse(BaseModel):
     description: Optional[str]
     custom_instructions: Optional[str]
     color: Optional[str]
-    is_public: bool = False
-    category: Optional[str] = None
-    is_public_candidate: bool = False
-    public_image_url: Optional[str] = None
-    public_image_updated_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
     current_user_role: Optional[str] = Field(None, description="Role of the authenticated user for this project")
@@ -119,11 +113,6 @@ class ProjectWithConversationCount(BaseModel):
     description: Optional[str]
     custom_instructions: Optional[str]
     color: Optional[str]
-    is_public: bool = False
-    category: Optional[str] = None
-    is_public_candidate: bool = False
-    public_image_url: Optional[str] = None
-    public_image_updated_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
     conversation_count: int

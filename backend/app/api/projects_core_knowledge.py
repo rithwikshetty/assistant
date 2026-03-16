@@ -114,14 +114,7 @@ def register_knowledge_base_routes(
     ):
         """Upload a file into the project's shared knowledge base."""
         pid = str(project_id)
-        project = await _get_project_for_member_async(pid, user, db)
-        current_role = getattr(project, "current_user_role", None)
-
-        if bool(getattr(project, "is_public", False)) and current_role != "owner":
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only the project owner can add knowledge base files to public projects",
-            )
+        await _get_project_for_member_async(pid, user, db)
 
         try:
             file_record = await file_processing_service.upload_file_for_background_processing(

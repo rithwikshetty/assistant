@@ -72,8 +72,6 @@ def test_domain_checks_exist_for_core_mutable_tables() -> None:
 
 def test_boolean_columns_do_not_allow_tristate_null() -> None:
     assert User.__table__.c.is_active.nullable is False
-    assert Project.__table__.c.is_public.nullable is False
-    assert Project.__table__.c.is_public_candidate.nullable is False
     assert Project.__table__.c.archived.nullable is False
     assert Conversation.__table__.c.archived.nullable is False
     assert Conversation.__table__.c.is_pinned.nullable is False

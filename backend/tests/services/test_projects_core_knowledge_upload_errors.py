@@ -20,7 +20,6 @@ def _build_client(monkeypatch: pytest.MonkeyPatch, upload_side_effect):  # type:
         get_project_for_member=lambda *_args, **_kwargs: SimpleNamespace(
             id="project-1",
             current_user_role="owner",
-            is_public=False,
         ),
         serialize_project_knowledge_file=lambda file_record: file_record,
     )

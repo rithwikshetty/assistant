@@ -72,25 +72,6 @@ export async function updateProject(
   return response.json();
 }
 
-export async function uploadProjectPublicImage(projectId: string, file: File): Promise<Project> {
-  const formData = new FormData();
-  formData.append("image", file);
-  const response = await fetchWithAuth(`${API_BASE_URL}/projects/${projectId}/public-image`, {
-    method: "POST",
-    body: formData,
-  });
-  if (!response.ok) await parseApiError(response, "Failed to upload project image");
-  return response.json();
-}
-
-export async function deleteProjectPublicImage(projectId: string): Promise<Project> {
-  const response = await fetchWithAuth(`${API_BASE_URL}/projects/${projectId}/public-image`, {
-    method: "DELETE",
-  });
-  if (!response.ok) await parseApiError(response, "Failed to remove project image");
-  return response.json();
-}
-
 export async function uploadProjectKnowledgeFile(
   projectId: string,
   file: File,

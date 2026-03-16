@@ -35,7 +35,6 @@ interface ProjectKnowledgeDialogProps {
   projectName?: string | null;
   canManageKnowledge?: boolean;
   canUploadKnowledge?: boolean;
-  isPublicProject?: boolean;
 }
 
 export function ProjectKnowledgeDialog({
@@ -45,7 +44,6 @@ export function ProjectKnowledgeDialog({
   projectName,
   canManageKnowledge,
   canUploadKnowledge,
-  isPublicProject,
 }: ProjectKnowledgeDialogProps) {
   const effectiveProjectId = open ? projectId : null;
   const { addToast } = useToast();
@@ -78,9 +76,7 @@ export function ProjectKnowledgeDialog({
   const canManageAllFiles = Boolean(canManageKnowledge);
   const allowKnowledgeUpload = canUploadKnowledge ?? true;
   const uploadRestrictionMessage = !allowKnowledgeUpload
-    ? isPublicProject
-      ? "Only the project owner can add knowledge base files to public projects."
-      : "You don't have permission to add knowledge base files."
+    ? "You don't have permission to add knowledge base files."
     : null;
 
   // Subscribe to upload state manager

@@ -4,9 +4,7 @@ from datetime import datetime, timezone, date, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_, case
-from sqlalchemy.exc import IntegrityError
 from typing import Optional
-from uuid import UUID
 
 
 def _parse_date(d: Optional[str]) -> Optional[date]:
@@ -59,17 +57,6 @@ from ..schemas.admin import (
     TierUpdate,
     ModelOverrideUpdate,
 )
-from ..schemas.admin_projects import (
-    AdminCreatePublicProjectRequest,
-    AdminCreatePublicProjectResponse,
-    AdminToggleVisibilityRequest,
-    AdminToggleVisibilityResponse,
-    AdminProjectDetail,
-    AdminProjectOwner,
-    AdminPublicProjectListItem,
-    AdminPublicProjectListResponse,
-    AdminDeleteProjectResponse,
-)
 from ..schemas.usage import UsageSummary
 from ..schemas.admin_settings import ChatProviderResponse, ChatProviderUpdate
 from ..schemas.admin_metrics import (
@@ -88,9 +75,6 @@ from ..services.metrics_service import MetricsService
 from ..database.models import (
     AdminUserRollup,
     AppSetting,
-    Conversation,
-    Project,
-    ProjectMember,
     User,
 )
 from ..services.chat_provider_service import (
@@ -102,7 +86,6 @@ from ..services.chat_provider_service import (
     validate_chat_model,
 )
 from ..services.provider_costs import format_cost
-from ..services.files import file_service
 from ..utils.roles import non_admin_role_filter
 from ..utils.timezone_context import DEFAULT_REPORTING_TIMEZONE
 from ..utils.datetime_helpers import format_utc_z
@@ -623,209 +606,3 @@ def set_chat_provider(payload: ChatProviderUpdate, db: Session = Depends(get_db)
         power_model=power_model,
         available_models=options,
     )
-
-
-# --- Public Projects Admin Endpoints ---
-
-
-@router.post(
-    "/projects/public",
-    response_model=AdminCreatePublicProjectResponse,
-    dependencies=[Depends(admin_required)],
-)
-def create_public_project(
-    payload: AdminCreatePublicProjectRequest,
-    db: Session = Depends(get_db),
-):
-    # Look up owner by email
-    owner = db.query(User).filter(User.email == payload.owner_email).first()
-    if not owner:
-        raise HTTPException(status_code=400, detail="Owner email not found in users table")
-
-    description = (payload.description or "").strip() or None
-    category = (payload.category or "").strip() or None
-
-    try:
-        # Create project with is_public = False initially
-        project = Project(
-            user_id=owner.id,
-            name=payload.name.strip(),
-            description=description,
-            color=None,
-            is_public=False,
-            is_public_candidate=True,
-            category=category,
-        )
-        db.add(project)
-        db.flush()  # get project.id
-
-        # Ensure owner membership
-        owner_membership = (
-            db.query(ProjectMember)
-            .filter(ProjectMember.project_id == project.id, ProjectMember.user_id == owner.id)
-            .first()
-        )
-        if owner_membership is None:
-            db.add(
-                ProjectMember(
-                    project_id=project.id,
-                    user_id=owner.id,
-                    role="owner",
-                )
-            )
-
-        db.commit()
-        db.refresh(project)
-
-        return AdminCreatePublicProjectResponse(
-            project=AdminProjectDetail.model_validate(project),
-            owner=AdminProjectOwner(id=str(owner.id), email=owner.email, name=owner.name),
-        )
-    except IntegrityError:
-        db.rollback()
-        # Membership already exists; finalize project and return
-        db.refresh(project)
-        return AdminCreatePublicProjectResponse(
-            project=AdminProjectDetail.model_validate(project),
-            owner=AdminProjectOwner(id=str(owner.id), email=owner.email, name=owner.name),
-        )
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to create public project: {str(e)}")
-
-
-@router.get(
-    "/projects/public-list",
-    response_model=AdminPublicProjectListResponse,
-    dependencies=[Depends(admin_required)],
-)
-def list_public_intended_projects(db: Session = Depends(get_db)):
-    """List all projects marked as public-intended (draft or active)."""
-    # Member counts subquery
-    member_counts_sq = (
-        db.query(
-            ProjectMember.project_id.label("project_id"),
-            func.count(ProjectMember.user_id).label("member_count"),
-        )
-        .group_by(ProjectMember.project_id)
-        .subquery()
-    )
-
-    rows = (
-        db.query(
-            Project,
-            User,
-            func.coalesce(member_counts_sq.c.member_count, 0).label("member_count"),
-        )
-        .join(User, User.id == Project.user_id)
-        .outerjoin(member_counts_sq, member_counts_sq.c.project_id == Project.id)
-        .filter(Project.is_public_candidate == True, Project.archived == False)
-        .order_by(Project.created_at.desc(), Project.name.asc())
-        .all()
-    )
-
-    items: list[AdminPublicProjectListItem] = []
-    for project, owner, member_count in rows:
-        items.append(
-            AdminPublicProjectListItem(
-                id=project.id,
-                name=project.name,
-                owner_email=owner.email,
-                owner_name=owner.name,
-                is_public=bool(project.is_public),
-                is_public_candidate=bool(project.is_public_candidate),
-                member_count=int(member_count or 0),
-                description=project.description,
-                category=project.category,
-                created_at=project.created_at,
-            )
-        )
-
-    return AdminPublicProjectListResponse(projects=items)
-
-
-@router.patch(
-    "/projects/{project_id:uuid}/visibility",
-    response_model=AdminToggleVisibilityResponse,
-    dependencies=[Depends(admin_required)],
-)
-def toggle_project_visibility(
-    project_id: UUID,
-    payload: AdminToggleVisibilityRequest,
-    db: Session = Depends(get_db),
-):
-    pid = str(project_id)
-    project = db.query(Project).filter(Project.id == pid, Project.archived == False).first()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    try:
-        # When making public, require description and category (parity with owner endpoint)
-        if payload.is_public:
-            if not (project.description and project.description.strip()):
-                raise HTTPException(status_code=400, detail="Description is required before making a project public")
-            if not (project.category and project.category.strip()):
-                raise HTTPException(status_code=400, detail="Category is required before making a project public")
-        project.is_public = bool(payload.is_public)
-        db.commit()
-        db.refresh(project)
-        return AdminToggleVisibilityResponse(
-            message="Updated",
-            project=AdminProjectDetail.model_validate(project),
-        )
-    except HTTPException:
-        db.rollback()
-        raise
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to update project visibility: {str(e)}")
-
-
-@router.delete(
-    "/projects/{project_id:uuid}",
-    response_model=AdminDeleteProjectResponse,
-    dependencies=[Depends(admin_required)],
-)
-def delete_public_project(
-    project_id: UUID,
-    db: Session = Depends(get_db),
-    admin_user: User = Depends(get_current_user),
-):
-    project = (
-        db.query(Project)
-        .filter(
-            Project.id == str(project_id),
-            Project.archived == False,
-            Project.is_public_candidate == True,
-        )
-        .first()
-    )
-    if not project:
-        raise HTTPException(status_code=404, detail="Public project not found")
-
-    try:
-        now = datetime.now(timezone.utc)
-        project.archived = True
-        project.archived_at = now
-        project.archived_by = admin_user.id
-
-        conversations = (
-            db.query(Conversation)
-            .filter(Conversation.project_id == project.id, Conversation.archived == False)
-            .all()
-        )
-        for conversation in conversations:
-            conversation.archived = True
-            conversation.archived_at = now
-            conversation.archived_by = admin_user.id
-
-        db.commit()
-        file_service.purge_archived_project_blob_content_best_effort(
-            db=db,
-            project_ids=[str(project.id)],
-            user_id=str(admin_user.id),
-        )
-        return AdminDeleteProjectResponse(message="Deleted", project_id=project.id)
-    except Exception as exc:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to delete project: {str(exc)}")

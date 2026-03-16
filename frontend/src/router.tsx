@@ -6,10 +6,6 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { NavigationSidebar } from "@/components/navigation/navigation-sidebar";
 import { ChatInterface } from "@/app/chat-interface";
 
-// Lazy-load route-level pages
-const BrowseProjectsInterface = lazy(() =>
-  import("@/app/projects/browse/browse-projects-interface").then((m) => ({ default: m.BrowseProjectsInterface })),
-);
 const TasksInterface = lazy(() =>
   import("@/app/tasks/tasks-interface").then((m) => ({ default: m.TasksInterface })),
 );
@@ -82,7 +78,6 @@ function AppShellRoutes() {
           </Route>
           <Route path="/projects/:projectId" element={<ProjectRoute />} />
           <Route path="/projects/:projectId/chat/:conversationId" element={<ProjectChatRoute />} />
-          <Route path="/projects/browse" element={<BrowseProjectsInterface />} />
           <Route
             path="/skills"
             element={

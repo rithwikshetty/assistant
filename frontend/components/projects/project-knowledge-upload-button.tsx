@@ -12,7 +12,6 @@ interface ProjectKnowledgeUploadButtonProps {
   projectName?: string | null;
   canManageKnowledge?: boolean;
   canUploadKnowledge?: boolean;
-  isPublicProject?: boolean;
   disabled?: boolean;
 }
 
@@ -21,7 +20,6 @@ export const ProjectKnowledgeUploadButton: React.FC<ProjectKnowledgeUploadButton
   projectName,
   canManageKnowledge,
   canUploadKnowledge,
-  isPublicProject,
   disabled,
 }) => {
   const [open, setOpen] = useState(false);
@@ -124,7 +122,6 @@ export const ProjectKnowledgeUploadButton: React.FC<ProjectKnowledgeUploadButton
         projectName={projectName}
         canManageKnowledge={canManageKnowledge}
         canUploadKnowledge={canUploadKnowledge}
-        isPublicProject={isPublicProject}
       />
     </>
   );

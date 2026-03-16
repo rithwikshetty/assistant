@@ -81,19 +81,6 @@ class Project(Base):
     description = Column(Text, nullable=True)
     custom_instructions = Column(Text, nullable=True)  # AI behavior guidance for this project
     color = Column(String(7), nullable=True)  # Hex color code (e.g., #F7C400)
-    # Public projects feature
-    # Whether this project is visible to all users for browsing/joining.
-    # Defaults to False; existing rows remain private.
-    is_public = Column(Boolean, default=False, nullable=False, index=True)
-    # Optional high-level category for browse filtering (e.g., "Contracts", "Cost Indices").
-    category = Column(String(100), nullable=True)
-    # Whether this project is intended to be a public project before activation.
-    # Used for admin listings and owner controls before activation.
-    is_public_candidate = Column(Boolean, default=False, nullable=False, index=True)
-    # Optional hero image for public browse experience (owners manage via UI).
-    public_image_blob = Column(String(512), nullable=True)
-    public_image_url = Column(String(1024), nullable=True)
-    public_image_updated_at = Column(DateTime(timezone=True), nullable=True)
     archived = Column(Boolean, default=False, nullable=False)
     archived_at = Column(DateTime(timezone=True), nullable=True)
     archived_by = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=True)

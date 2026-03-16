@@ -2,7 +2,7 @@ import * as React from "react"
 import { useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useLocation, useNavigate } from "react-router-dom"
-import { MagnifyingGlass, List, Globe, SquaresFour, ListChecks, X } from "@phosphor-icons/react"
+import { MagnifyingGlass, List, SquaresFour, ListChecks, X } from "@phosphor-icons/react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Sidebar,
@@ -23,7 +23,6 @@ import { getUnseenAssignedTaskCount } from "@/lib/api/tasks"
 import { ThreadListNew, ThreadListContent } from "./thread-list"
 import { UserProfileDropdown } from "./user-profile-dropdown"
 import { cn } from "@/lib/utils"
-import { getEnv } from "@/lib/utils/env"
 
 const SIDEBAR_SCROLL_STORAGE_KEY = "assist:navigation-sidebar:scrollTop"
 const SIDEBAR_LANE_INSET_CLASS = "px-2"
@@ -203,11 +202,7 @@ function SecondaryActionsRow() {
   const location = useLocation();
   const { user } = useAuth();
   const { addToast } = useToast();
-  const isProjectsEnabled = getEnv("VITE_ENABLE_PROJECTS", "true") === "true";
   const isPowerUser = (user?.user_tier || "").toLowerCase() === "power";
-  const isProjectsActive =
-    location.pathname === "/projects/browse" ||
-    location.pathname.startsWith("/projects/browse/");
   const isSkillsActive = location.pathname.startsWith("/skills");
   const isTasksActive = location.pathname.startsWith("/tasks");
   const { data: unseenCount = 0 } = useQuery<number>({
@@ -235,23 +230,6 @@ function SecondaryActionsRow() {
 
   return (
     <>
-      <SidebarMenuItem>
-        <SidebarMenuButton
-          tooltip={isProjectsEnabled ? "Projects" : "Projects (testing)"}
-          onClick={() => isProjectsEnabled && navigate("/projects/browse")}
-          isActive={isProjectsActive}
-          disabled={!isProjectsEnabled}
-          className={cn(
-            "h-8 !rounded-lg text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent group-data-[collapsible=icon]:rounded-lg",
-            isProjectsActive && "text-sidebar-primary font-medium bg-sidebar-primary/10",
-            !isProjectsEnabled && "opacity-40 cursor-not-allowed"
-          )}
-          aria-label={isProjectsEnabled ? "Projects" : "Projects (testing)"}
-        >
-          <Globe className="size-4" />
-          <span>Projects</span>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
       {isPowerUser && (
         <SidebarMenuItem>
           <SidebarMenuButton

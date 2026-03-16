@@ -115,7 +115,6 @@ def test_sector_classification_uses_responses_api(monkeypatch) -> None:
         project_id="project_1",
         title="School expansion estimate",
         project_name="North Campus",
-        project_category="Education",
         first_user_message="Need a budget estimate for classrooms.",
         recent_user_messages=["Need a budget estimate for classrooms."],
         user_message_count=1,

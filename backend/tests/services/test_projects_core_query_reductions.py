@@ -41,7 +41,6 @@ def _build_knowledge_client(current_user_role: str) -> TestClient:
         get_project_for_member=lambda *_args, **_kwargs: SimpleNamespace(
             id="project-1",
             current_user_role=current_user_role,
-            is_public=False,
         ),
         serialize_project_knowledge_file=lambda file_record: file_record,
     )
@@ -280,7 +279,6 @@ def test_project_knowledge_archive_job_creation_enqueues_outbox_before_commit(mo
         get_project_for_member=lambda *_args, **_kwargs: SimpleNamespace(
             id="project-1",
             current_user_role="owner",
-            is_public=False,
         ),
         serialize_project_knowledge_file=lambda file_record: file_record,
     )

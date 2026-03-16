@@ -1,16 +1,14 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File as FastAPIFile
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func, or_
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import func
 from typing import List, Optional
-from uuid import UUID, uuid4
+from uuid import UUID
 from datetime import datetime, timezone
-from pathlib import Path
 
 from ..auth.dependencies import get_current_user
-from ..config.database import get_async_db, get_db
+from ..config.database import get_db
 from ..database.models import User, Project, Conversation, ProjectMember, Message, File as FileModel
 from ..schemas.projects_core import (
     ProjectCreate,
@@ -23,7 +21,6 @@ from ..services.project_permissions import (
     require_project_member,
     get_project_member,
 )
-from ..services.project_images import build_public_image_url
 from .projects_core_collaboration import register_collaboration_routes
 from .projects_core_knowledge import register_knowledge_base_routes
 from ..chat.schemas import ConversationResponse
@@ -32,17 +29,10 @@ from ..schemas.files import (
     ProjectKnowledgeFile,
     ProjectKnowledgeUploader,
 )
-from ..services.files import (
-    blob_storage_service,
-    file_service,
-    IMAGE_EXTENSIONS,
-    IMAGE_MIME_TYPES,
-)
+from ..services.files import file_service
 from ..services.admin import analytics_event_recorder
-from ..logging import log_event
 
 router = APIRouter(prefix="/projects", tags=["projects"])
-MAX_PUBLIC_IMAGE_BYTES = 2 * 1024 * 1024  # 2 MiB ceiling for browse tile images
 logger = logging.getLogger(__name__)
 
 
@@ -86,7 +76,6 @@ def _get_project_for_member(project_id: str, user: User, db: Session) -> Project
 
     project, member_role = row
     setattr(project, "current_user_role", member_role)
-    _hydrate_public_image_url(project)
 
     return project
 
@@ -95,21 +84,9 @@ def _set_current_user_role(project: Optional[Project], user_id: Optional[str], d
     if not project or not user_id:
         if project is not None:
             setattr(project, "current_user_role", None)
-            _hydrate_public_image_url(project)
         return
     member = get_project_member(user_id, project.id, db)
     setattr(project, "current_user_role", getattr(member, "role", None))
-    _hydrate_public_image_url(project)
-
-
-def _hydrate_public_image_url(project: Optional[Project]) -> None:
-    if not project:
-        return
-    project.public_image_url = build_public_image_url(
-        project,
-        expiry_minutes=1440,
-        append_version=False,
-    )
 
 
 def _count_project_owners(project_id: str, db: Session) -> int:
@@ -240,14 +217,8 @@ def list_projects(
                 func.count(Conversation.id).label("conversation_count"),
             )
             .join(member_projects_subquery, member_projects_subquery.c.project_id == Conversation.project_id)
-            .join(Project, Project.id == Conversation.project_id)
             .filter(
                 Conversation.archived.is_(False),
-                or_(
-                    Conversation.user_id == user.id,
-                    Project.is_public_candidate.is_(False),
-                    Project.is_public_candidate.is_(None),
-                ),
             )
             .group_by(Conversation.project_id)
             .subquery()
@@ -271,7 +242,6 @@ def list_projects(
 
         results: List[ProjectWithConversationCount] = []
         for project, count, member_role in projects:
-            _hydrate_public_image_url(project)
             payload = {
                 key: getattr(project, key)
                 for key in (
@@ -281,15 +251,10 @@ def list_projects(
                     "description",
                     "custom_instructions",
                     "color",
-                    "category",
-                    "public_image_url",
-                    "public_image_updated_at",
                     "created_at",
                     "updated_at",
                 )
             }
-            payload["is_public"] = bool(project.is_public)
-            payload["is_public_candidate"] = bool(project.is_public_candidate)
             payload["current_user_role"] = member_role
             payload["conversation_count"] = max(0, int(count or 0))
             results.append(
@@ -325,7 +290,7 @@ def update_project(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Update a project's metadata (name, description, custom_instructions, color, category)."""
+    """Update a project's metadata."""
     pid = str(project_id)
     require_project_owner(user, pid, db)
 
@@ -350,9 +315,6 @@ def update_project(
             project.custom_instructions = payload.custom_instructions
         if payload.color is not None:
             project.color = payload.color
-        if payload.category is not None:
-            # Normalize empty string to None
-            project.category = payload.category.strip() or None
         db.commit()
         db.refresh(project)
         _set_current_user_role(project, user.id, db)
@@ -360,186 +322,6 @@ def update_project(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=f"Failed to update project: {str(e)}")
-
-
-@router.post("/{project_id:uuid}/public-image", response_model=ProjectResponse)
-async def upload_public_project_image(
-    project_id: UUID,
-    image: UploadFile = FastAPIFile(...),
-    user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db),
-):
-    """Upload or replace the hero image used on the browse page for public projects."""
-    pid = str(project_id)
-    project = await db.run_sync(
-        lambda sync_db: (
-            require_project_owner(user, pid, sync_db),
-            _get_project_for_member(pid, user, sync_db),
-        )[1]
-    )
-    if not project.is_public_candidate:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only public-intended projects can manage a public image",
-        )
-
-    contents = await image.read()
-    if not contents:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Image file is empty",
-        )
-    if len(contents) > MAX_PUBLIC_IMAGE_BYTES:
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail="Image must be 2 MB or smaller",
-        )
-
-    content_type = (image.content_type or "").lower()
-    if content_type not in IMAGE_MIME_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="Unsupported image type",
-        )
-
-    extension = Path(image.filename or "").suffix.lower().lstrip(".")
-    if not extension or extension not in IMAGE_EXTENSIONS:
-        if content_type == "image/png":
-            extension = "png"
-        elif content_type in {"image/jpeg", "image/jpg"}:
-            extension = "jpg"
-        elif content_type == "image/gif":
-            extension = "gif"
-        elif content_type == "image/webp":
-            extension = "webp"
-        else:
-            extension = "png"
-
-    blob_name = f"public-projects/{pid}/{uuid4().hex}.{extension}"
-
-    try:
-        blob_url = await blob_storage_service.upload(blob_name, contents)
-    except Exception as exc:
-        log_event(
-            logger,
-            "ERROR",
-            "projects.public_image.upload_failed",
-            "error",
-            user_id=str(user.id),
-            project_id=pid,
-            content_type=content_type,
-            error_type=type(exc).__name__,
-            exc_info=exc,
-        )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to upload image",
-        )
-
-    old_blob = project.public_image_blob
-    project.public_image_blob = blob_name
-    project.public_image_url = blob_url
-    project.public_image_updated_at = datetime.now(timezone.utc)
-
-    try:
-        await db.commit()
-    except Exception as exc:
-        await db.rollback()
-        try:
-            blob_storage_service.delete(blob_name)
-        except Exception as cleanup_exc:
-            log_event(
-                logger,
-                "ERROR",
-                "projects.public_image.cleanup_failed",
-                "error",
-                user_id=str(user.id),
-                project_id=pid,
-                blob_name=blob_name,
-                error_type=type(cleanup_exc).__name__,
-                exc_info=cleanup_exc,
-            )
-        log_event(
-            logger,
-            "ERROR",
-            "projects.public_image.persist_failed",
-            "error",
-            user_id=str(user.id),
-            project_id=pid,
-            blob_name=blob_name,
-            error_type=type(exc).__name__,
-            exc_info=exc,
-        )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to persist image metadata",
-        )
-
-    await db.refresh(project)
-    await db.run_sync(lambda sync_db: _set_current_user_role(project, user.id, sync_db))
-
-    if old_blob and old_blob != blob_name:
-        try:
-            blob_storage_service.delete(old_blob)
-        except Exception as exc:
-            log_event(
-                logger,
-                "ERROR",
-                "projects.public_image.previous_blob_cleanup_failed",
-                "error",
-                user_id=str(user.id),
-                project_id=pid,
-                blob_name=old_blob,
-                error_type=type(exc).__name__,
-                exc_info=exc,
-            )
-
-    return project
-
-
-@router.delete("/{project_id:uuid}/public-image", response_model=ProjectResponse)
-def delete_public_project_image(
-    project_id: UUID,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Remove the hero image for a public project."""
-    pid = str(project_id)
-    require_project_owner(user, pid, db)
-
-    project = _get_project_for_member(pid, user, db)
-    if not project.is_public_candidate:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only public-intended projects can manage a public image",
-        )
-
-    old_blob = project.public_image_blob
-    project.public_image_blob = None
-    project.public_image_url = None
-    project.public_image_updated_at = datetime.now(timezone.utc)
-
-    db.commit()
-    db.refresh(project)
-    _set_current_user_role(project, user.id, db)
-
-    if old_blob:
-        try:
-            blob_storage_service.delete(old_blob)
-        except Exception as exc:
-            log_event(
-                logger,
-                "ERROR",
-                "projects.public_image.delete_cleanup_failed",
-                "error",
-                user_id=str(user.id),
-                project_id=pid,
-                blob_name=old_blob,
-                error_type=type(exc).__name__,
-                exc_info=exc,
-            )
-
-    return project
 
 
 @router.delete("/{project_id:uuid}", status_code=status.HTTP_204_NO_CONTENT)
@@ -610,9 +392,6 @@ def get_project_conversations(
 
     if not include_archived:
         query = query.filter(Conversation.archived == False)
-
-    if bool(project_obj.is_public_candidate):
-        query = query.filter(Conversation.user_id == user.id)
 
     conversations = (
         query.options(joinedload(Conversation.user))

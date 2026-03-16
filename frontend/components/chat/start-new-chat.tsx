@@ -61,8 +61,7 @@ export const StartNewChat: React.FC<StartNewChatProps> = ({
   const headerProjectId = projectId ?? project?.id ?? null;
   const headerProjectColor = project?.color ?? null;
   const currentProjectRole = project?.current_user_role ?? null;
-  const isPublicProject = Boolean(project?.is_public);
-  const canUploadKnowledge = isPublicProject ? currentProjectRole === "owner" : Boolean(currentProjectRole);
+  const canUploadKnowledge = Boolean(currentProjectRole);
   const showNewUserKickoffCta = !projectId && !conversationsLoading && !conversationsError && conversations.length === 0;
 
   if (projectId) {
@@ -77,7 +76,6 @@ export const StartNewChat: React.FC<StartNewChatProps> = ({
               projectLoading={projectLoading}
               canManageKnowledge={currentProjectRole === "owner"}
               canUploadKnowledge={canUploadKnowledge}
-              isPublicProject={isPublicProject}
             />
           </div>
           <div className="flex-1 min-h-0 overflow-hidden md:flex-grow-[0.72] md:flex-shrink-0 md:basis-0">
@@ -266,10 +264,9 @@ const WelcomeHeader: React.FC<{
   projectLoading?: boolean;
   canManageKnowledge?: boolean;
   canUploadKnowledge?: boolean;
-  isPublicProject?: boolean;
   showNewUserKickoffCta?: boolean;
   onNewUserKickoff?: () => void;
-}> = ({ projectId, projectName, projectColor, projectLoading, canManageKnowledge, canUploadKnowledge, isPublicProject, showNewUserKickoffCta = false, onNewUserKickoff }) => {
+}> = ({ projectId, projectName, projectColor, projectLoading, canManageKnowledge, canUploadKnowledge, showNewUserKickoffCta = false, onNewUserKickoff }) => {
   const { user, isAuthenticated, isBackendAuthenticated, isLoading } = useAuth();
   const rawFirstName = user?.name ? user.name.split(" ")[0] : "";
   const authenticated = !isLoading && isAuthenticated && isBackendAuthenticated;
@@ -321,7 +318,6 @@ const WelcomeHeader: React.FC<{
               projectName={normalizedProjectName ?? null}
               canManageKnowledge={canManageKnowledge}
               canUploadKnowledge={canUploadKnowledge}
-              isPublicProject={isPublicProject}
               disabled={projectLoading}
             />
           ) : (

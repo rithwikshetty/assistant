@@ -113,7 +113,6 @@ class ConversationSectorContext:
     project_id: Optional[str]
     title: str
     project_name: Optional[str]
-    project_category: Optional[str]
     first_user_message: Optional[str]
     recent_user_messages: list[str]
     user_message_count: int
@@ -238,10 +237,8 @@ def build_sector_context(db: Session, conversation_id: str) -> Optional[Conversa
             first_user_message = first_payload.strip()
 
     project_name = None
-    project_category = None
     if conversation.project is not None:
         project_name = (conversation.project.name or "").strip() or None
-        project_category = (conversation.project.category or "").strip() or None
 
     return ConversationSectorContext(
         conversation_id=conversation_id,
@@ -249,7 +246,6 @@ def build_sector_context(db: Session, conversation_id: str) -> Optional[Conversa
         project_id=str(conversation.project_id) if conversation.project_id else None,
         title=(conversation.title or "").strip() or "New Chat",
         project_name=project_name,
-        project_category=project_category,
         first_user_message=first_user_message,
         recent_user_messages=recent_user_messages,
         user_message_count=int(user_message_count),
@@ -266,7 +262,6 @@ def classify_sector_with_model(context: ConversationSectorContext) -> tuple[str,
     compact_context = {
         "title": _truncate_text(context.title, max_len=220),
         "project_name": _truncate_text(context.project_name, max_len=140),
-        "project_category": _truncate_text(context.project_category, max_len=140),
         "first_user_message": _truncate_text(context.first_user_message, max_len=1800),
         "recent_user_messages": [
             _truncate_text(message, max_len=1200)
@@ -432,13 +427,7 @@ def classify_and_upsert_sector(db: Session, conversation_id: str) -> Dict[str, A
         }
 
     used_project_hint = False
-    project_hint_sector = _normalize_sector(context.project_category)
-    if project_hint_sector:
-        model_sector = project_hint_sector
-        model_confidence = 0.99
-        used_project_hint = True
-    else:
-        model_sector, model_confidence = classify_sector_with_model(context)
+    model_sector, model_confidence = classify_sector_with_model(context)
 
     accepted_sector, accepted_confidence, lock_hits, is_locked, switch_blocked = _apply_backend_decision_rules(
         existing=existing,

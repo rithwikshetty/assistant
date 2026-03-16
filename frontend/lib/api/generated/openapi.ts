@@ -505,26 +505,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/projects/browse": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Browse Public Projects
-         * @description List public projects with membership and member count info.
-         */
-        get: operations["browse_public_projects_projects_browse_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/projects/{project_id}": {
         parameters: {
             query?: never;
@@ -539,7 +519,7 @@ export interface paths {
         get: operations["get_project_projects__project_id__get"];
         /**
          * Update Project
-         * @description Update a project's metadata (name, description, custom_instructions, color, category).
+         * @description Update a project's metadata.
          */
         put: operations["update_project_projects__project_id__put"];
         post?: never;
@@ -567,43 +547,6 @@ export interface paths {
         get: operations["get_project_conversations_projects__project_id__conversations_get"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/projects/{project_id}/is-member": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Is Member */
-        get: operations["is_member_projects__project_id__is_member_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/projects/{project_id}/join": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Join Public Project
-         * @description Join a public project. Idempotent if already a member.
-         */
-        post: operations["join_public_project_projects__project_id__join_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -851,30 +794,6 @@ export interface paths {
         patch: operations["update_project_member_role_projects__project_id__members__member_id__role_patch"];
         trace?: never;
     };
-    "/projects/{project_id}/public-image": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Upload Public Project Image
-         * @description Upload or replace the hero image used on the browse page for public projects.
-         */
-        post: operations["upload_public_project_image_projects__project_id__public_image_post"];
-        /**
-         * Delete Public Project Image
-         * @description Remove the hero image for a public project.
-         */
-        delete: operations["delete_public_project_image_projects__project_id__public_image_delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/projects/{project_id}/share": {
         parameters: {
             query?: never;
@@ -913,30 +832,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/projects/{project_id}/visibility": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Set Project Visibility
-         * @description Allow owner to toggle public visibility ONLY for projects marked as public candidates.
-         *
-         *     Only projects created via admin panel (is_public_candidate=True) can toggle visibility.
-         *     This applies to all users, including admins.
-         *     When making public, requires description and category to be set.
-         */
-        patch: operations["set_project_visibility_projects__project_id__visibility_patch"];
         trace?: never;
     };
     "/share/projects/{share_token}/join": {
@@ -1428,11 +1323,6 @@ export interface components {
             /** File */
             file: string;
         };
-        /** Body_upload_public_project_image_projects__project_id__public_image_post */
-        Body_upload_public_project_image_projects__project_id__public_image_post: {
-            /** Image */
-            image: string;
-        };
         /** Body_upload_staged_file_staged_files_upload_post */
         Body_upload_staged_file_staged_files_upload_post: {
             /** File */
@@ -1442,91 +1332,6 @@ export interface components {
         BranchConversationRequest: {
             /** Message Id */
             message_id: string;
-        };
-        /** BrowseProjectItem */
-        BrowseProjectItem: {
-            /** Category */
-            category: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Current User Role
-             * @description Role of authenticated user (owner/member)
-             */
-            current_user_role?: string | null;
-            /** Description */
-            description: string | null;
-            /** Id */
-            id: string;
-            /**
-             * Is Member
-             * @default false
-             */
-            is_member: boolean;
-            /**
-             * Is Public
-             * @default false
-             */
-            is_public: boolean;
-            /**
-             * Is Public Candidate
-             * @default false
-             */
-            is_public_candidate: boolean;
-            /**
-             * Member Count
-             * @default 0
-             */
-            member_count: number;
-            /** Name */
-            name: string;
-            /**
-             * Owner Email
-             * @description Primary owner email address
-             */
-            owner_email?: string | null;
-            /**
-             * Owner Id
-             * @description Primary owner user ID
-             */
-            owner_id?: string | null;
-            /**
-             * Owner Name
-             * @description Primary owner full name
-             */
-            owner_name?: string | null;
-            /**
-             * Owners
-             * @description List of owners for the project
-             */
-            owners?: components["schemas"]["BrowseProjectOwner"][];
-            /**
-             * Public Image Updated At
-             * @description Timestamp of last image update
-             */
-            public_image_updated_at?: string | null;
-            /**
-             * Public Image Url
-             * @description Signed or public URL for project image
-             */
-            public_image_url?: string | null;
-        };
-        /** BrowseProjectOwner */
-        BrowseProjectOwner: {
-            /** Email */
-            email: string | null;
-            /** Id */
-            id: string;
-            /** Name */
-            name: string | null;
-        };
-        /** BrowseProjectsResponse */
-        BrowseProjectsResponse: {
-            /** Projects */
-            projects: components["schemas"]["BrowseProjectItem"][];
         };
         /** BulkArchiveRequest */
         BulkArchiveRequest: {
@@ -2396,15 +2201,6 @@ export interface components {
              */
             name: string;
         };
-        /** ProjectJoinLeaveResponse */
-        ProjectJoinLeaveResponse: {
-            /** Message */
-            message: string;
-            /** Project Id */
-            project_id?: string | null;
-            /** Project Name */
-            project_name?: string | null;
-        };
         /** ProjectJoinResponse */
         ProjectJoinResponse: {
             /** Message */
@@ -2628,16 +2424,6 @@ export interface components {
             /** Members */
             members: components["schemas"]["ProjectMemberResponse"][];
         };
-        /** ProjectMembershipResponse */
-        ProjectMembershipResponse: {
-            /** Is Member */
-            is_member: boolean;
-            /**
-             * Role
-             * @description owner | member | null
-             */
-            role?: string | null;
-        };
         /** ProjectOwnershipTransferRequest */
         ProjectOwnershipTransferRequest: {
             /**
@@ -2655,8 +2441,6 @@ export interface components {
         };
         /** ProjectResponse */
         ProjectResponse: {
-            /** Category */
-            category?: string | null;
             /** Color */
             color: string | null;
             /**
@@ -2675,22 +2459,8 @@ export interface components {
             description: string | null;
             /** Id */
             id: string;
-            /**
-             * Is Public
-             * @default false
-             */
-            is_public: boolean;
-            /**
-             * Is Public Candidate
-             * @default false
-             */
-            is_public_candidate: boolean;
             /** Name */
             name: string;
-            /** Public Image Updated At */
-            public_image_updated_at?: string | null;
-            /** Public Image Url */
-            public_image_url?: string | null;
             /**
              * Updated At
              * Format: date-time
@@ -2710,11 +2480,6 @@ export interface components {
         };
         /** ProjectUpdate */
         ProjectUpdate: {
-            /**
-             * Category
-             * @description Project category for public projects
-             */
-            category?: string | null;
             /**
              * Color
              * @description Hex color code (e.g., #F7C400)
@@ -2736,24 +2501,8 @@ export interface components {
              */
             name?: string | null;
         };
-        /** ProjectVisibilityUpdateRequest */
-        ProjectVisibilityUpdateRequest: {
-            /** Is Public */
-            is_public: boolean;
-        };
-        /** ProjectVisibilityUpdateResponse */
-        ProjectVisibilityUpdateResponse: {
-            /** Is Public */
-            is_public: boolean;
-            /** Message */
-            message: string;
-            /** Project Id */
-            project_id: string;
-        };
         /** ProjectWithConversationCount */
         ProjectWithConversationCount: {
-            /** Category */
-            category?: string | null;
             /** Color */
             color: string | null;
             /** Conversation Count */
@@ -2774,22 +2523,8 @@ export interface components {
             description: string | null;
             /** Id */
             id: string;
-            /**
-             * Is Public
-             * @default false
-             */
-            is_public: boolean;
-            /**
-             * Is Public Candidate
-             * @default false
-             */
-            is_public_candidate: boolean;
             /** Name */
             name: string;
-            /** Public Image Updated At */
-            public_image_updated_at?: string | null;
-            /** Public Image Url */
-            public_image_url?: string | null;
             /**
              * Updated At
              * Format: date-time
@@ -4636,38 +4371,6 @@ export interface operations {
             };
         };
     };
-    browse_public_projects_projects_browse_get: {
-        parameters: {
-            query?: {
-                /** @description Optional category filter */
-                category?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BrowseProjectsResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     get_project_projects__project_id__get: {
         parameters: {
             query?: never;
@@ -4783,68 +4486,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConversationResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    is_member_projects__project_id__is_member_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                project_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProjectMembershipResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    join_public_project_projects__project_id__join_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                project_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProjectJoinLeaveResponse"];
                 };
             };
             /** @description Validation Error */
@@ -5277,72 +4918,6 @@ export interface operations {
             };
         };
     };
-    upload_public_project_image_projects__project_id__public_image_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                project_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_upload_public_project_image_projects__project_id__public_image_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProjectResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_public_project_image_projects__project_id__public_image_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                project_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProjectResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     generate_project_share_link_projects__project_id__share_post: {
         parameters: {
             query?: never;
@@ -5396,41 +4971,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProjectOwnershipTransferResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    set_project_visibility_projects__project_id__visibility_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                project_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ProjectVisibilityUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProjectVisibilityUpdateResponse"];
                 };
             };
             /** @description Validation Error */

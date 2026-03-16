@@ -337,12 +337,6 @@ CREATE TABLE projects (
 	description TEXT, 
 	custom_instructions TEXT, 
 	color VARCHAR(7), 
-	is_public BOOLEAN NOT NULL, 
-	category VARCHAR(100), 
-	is_public_candidate BOOLEAN NOT NULL, 
-	public_image_blob VARCHAR(512), 
-	public_image_url VARCHAR(1024), 
-	public_image_updated_at TIMESTAMP WITH TIME ZONE, 
 	archived BOOLEAN NOT NULL, 
 	archived_at TIMESTAMP WITH TIME ZONE, 
 	archived_by UUID, 
@@ -358,11 +352,7 @@ CREATE INDEX ix_projects_archived ON projects (archived);
 
 CREATE INDEX ix_projects_archived_at ON projects (archived_at);
 
-CREATE INDEX ix_projects_is_public ON projects (is_public);
-
 CREATE INDEX ix_projects_id ON projects (id);
-
-CREATE INDEX ix_projects_is_public_candidate ON projects (is_public_candidate);
 
 CREATE TABLE skills (
 	id UUID NOT NULL, 

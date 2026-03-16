@@ -204,7 +204,6 @@ def can_access_conversation(user: User, conversation: Conversation, db: Session)
         .filter(
             Project.id == project_id,
             Project.archived.is_(False),
-            Project.is_public_candidate.is_(False),
         )
         .first()
     )
@@ -236,7 +235,6 @@ async def can_access_conversation_async(user: User, conversation: Conversation, 
         .where(
             Project.id == project_id,
             Project.archived.is_(False),
-            Project.is_public_candidate.is_(False),
         )
         .limit(1)
     )

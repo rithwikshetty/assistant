@@ -18,8 +18,6 @@ import {
 import { tryWebShare, tryClipboardWrite } from "@/lib/share-helpers";
 import { useProjectMembersContext } from "@/contexts/project-members-context";
 import { parseBackendDate } from "@/lib/datetime";
-import { getProject, type Project } from "@/lib/api/projects-core";
-import { updateProjectVisibility } from "@/lib/api/projects";
 import { ConfirmButton } from "@/components/ui/confirm-button";
 import { useProjects } from "@/hooks/use-projects";
 
@@ -35,8 +33,6 @@ export function ProjectSharingDialog({ open, onClose, projectId, projectName }: 
   const navigate = useNavigate();
   const { updateProjects } = useProjects();
   const membersContext = useProjectMembersContext();
-  const [project, setProject] = useState<Project | null>(null);
-  const [visibilityPending, setVisibilityPending] = useState(false);
   const [shareInfo, setShareInfo] = useState<ProjectShareResponse | null>(null);
   const [generatingLink, setGeneratingLink] = useState(false);
   const [updatingMemberId, setUpdatingMemberId] = useState<string | null>(null);
@@ -49,8 +45,6 @@ export function ProjectSharingDialog({ open, onClose, projectId, projectName }: 
       setGeneratingLink(false);
       setUpdatingMemberId(null);
       setLeaveInProgress(false);
-      setProject(null);
-      setVisibilityPending(false);
       // no-op for instructions; edit-only in Edit Project details dialog
     }
   }, [open]);
@@ -76,19 +70,6 @@ export function ProjectSharingDialog({ open, onClose, projectId, projectName }: 
       return nameA.localeCompare(nameB);
     });
   }, [members]);
-
-  // Load minimal project info to enable public toggle (instructions view handled elsewhere)
-  useEffect(() => {
-    (async () => {
-      if (!open) return;
-      try {
-        const fetchedProject = await getProject(projectId);
-        setProject(fetchedProject);
-      } catch {
-        // non-blocking for sharing/members
-      }
-    })();
-  }, [open, projectId]);
 
   const handleRoleChange = useCallback(
     async (memberId: string, nextRole: ProjectMemberRole) => {
@@ -245,55 +226,6 @@ export function ProjectSharingDialog({ open, onClose, projectId, projectName }: 
             </div>
           ) : null}
         </section>
-
-        {Boolean(project?.is_public_candidate && isOwner) ? (
-          <section className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Users className="size-4 text-muted-foreground" />
-              <h4 className="type-size-14 font-semibold text-foreground">Project Visibility</h4>
-            </div>
-            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/5 px-4 py-3">
-              <div className="flex flex-col">
-                <span className="type-size-14 text-foreground">{project?.is_public ? 'Public' : 'Private (not listed)'}</span>
-                <span className="type-size-12 text-muted-foreground">
-                  {project?.is_public
-                    ? 'Anyone in your org can find and join.'
-                    : 'Only members can access. You can publish later.'}
-                </span>
-              </div>
-              <div>
-                <ConfirmButton
-                  aria-label={project?.is_public ? 'Make project private' : 'Publish project'}
-                  variant={project?.is_public ? 'secondary' : 'ghost'}
-                  confirmVariant={project?.is_public ? 'destructive' : 'default'}
-                  disabled={visibilityPending}
-                  confirmLabel={project?.is_public ? 'Confirm unpublish' : 'Confirm publish'}
-                  onConfirm={async () => {
-                    if (!project) return;
-                    const next = !project.is_public;
-                    setVisibilityPending(true);
-                    try {
-                      await updateProjectVisibility(project.id, next);
-                      setProject({ ...project, is_public: next });
-                      try {
-                        updateProjects((current) =>
-                          current.map((p) => (p.id === project.id ? { ...p, is_public: next } : p))
-                        );
-                      } catch {}
-                      addToast({ type: 'success', title: next ? 'Published' : 'Unpublished' });
-                    } catch (err) {
-                      addToast({ type: 'error', title: 'Update failed', description: (err as Error)?.message ?? '' });
-                    } finally {
-                      setVisibilityPending(false);
-                    }
-                  }}
-                >
-                  {project?.is_public ? 'Make private' : 'Publish'}
-                </ConfirmButton>
-              </div>
-            </div>
-          </section>
-        ) : null}
 
         {/* Custom instructions editing removed from Manage dialog to keep a single edit surface. */}
 
